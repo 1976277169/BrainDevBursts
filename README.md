@@ -1,5 +1,5 @@
 # BrainDevBursts
-Code for paper "Temporal ordering of input modulates connectivity formation in a developmental neuronal network model of the cortex" by C Sandford, SF Farmer and L Berthouze. 
+Code for paper "Temporal ordering of input modulates connectivity formation in a developmental neuronal network model of the cortex" by C Hartley, SF Farmer and L Berthouze. 
 BiorXiv reference to follow. 
 
 ### List of files: 
@@ -8,7 +8,7 @@ BiorXiv reference to follow.
 
 * **runSim.m**: Main simulation file. Runs one simulation for a given set of parameters
 
-* **parameter_sweep.m**: Performs a systematic sweep of key parameters (Hurst exponents, thresholds, LTP/LTD parameters). 
+* **cluster_sweep.m**: Performs a systematic sweep of key parameters (Hurst exponents, thresholds, LTP/LTD parameters). 
 
 * **calculateNormalisedNetworkStatistics.m**: Calculate normalised network metrics. Requires prior execution of runSim. 
 
@@ -22,6 +22,8 @@ BiorXiv reference to follow.
 * **generateFDN.m**: A wrapping function for DFN specifying Hurst exponent. 
 
 * **generateIBI_from_FDN.m**: Generates sequences of IBIs from FDN with given Hurst. 
+
+* **generateControlIBIseqs.m**: Generates sequences of IBIs of various Hurst using noise values from a reference IBIseq with given Hurst. 
 
 * **[progressbar](https://uk.mathworks.com/matlabcentral/fileexchange/6922-progressbar)**: Displays a progress bar. Code redistributed. See license.txt in directory. 
 

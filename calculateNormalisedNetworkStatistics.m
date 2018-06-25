@@ -1,17 +1,19 @@
 
-function calculateNormalisedNetworkStatistics(H, N, Ap, Ad, thr, iter, no_rand)
+function calculateNormalisedNetworkStatistics(H, N, Ap, Ad, thr, tau_STDP, tau_L, iter, no_rand)
 % generates null netw and calc normalised clustering and mean path length
-% This function is run after the simulations have been run. It will exit if
-% the required datafiles cannot be found. 
 % Input parameters:
 % H: Hurst exponent
-% SL: Length of data
 % N: Network size
+% Ap: Long-Term Potentiation parameter
+% Ad: Long-Term Depression parameter
+% thr: Losslikelihood threshold 
+% tau_stdp: STDP time constant
+% tau_L: L decay
 % iter: Seed
 % no_rand: Number of null networks to generate for each case
 
     % File containing IBI sequences + key network metrics in LRTC case
-    filename1 = strcat('./data/sims_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(Ap), '_Ad', num2str(Ad), '_thr', num2str(thr), '_s', num2str(iter),'.mat');
+    filename1 = strcat('./data/sims_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(Ap), '_Ad', num2str(Ad), '_thr', num2str(thr), '_tauSTDP', num2str(tau_STDP), '_tauL', num2str(tau_L), '_s', num2str(iter),'.mat');
     
     if ~exist(filename1,'file')
         fprintf('compare_to_random: File %s could not be found\n', filename1);
@@ -24,7 +26,7 @@ function calculateNormalisedNetworkStatistics(H, N, Ap, Ad, thr, iter, no_rand)
     end
     
     % File containing key network metrics in shuffled case
-    filename2 = strcat('./data/sims_shuff_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_s', num2str(iter),'.mat');
+    filename2 = strcat('./data/sims_shuff_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_tauSTDP', num2str(tau_STDP), '_tauL', num2str(tau_L), '_s', num2str(iter),'.mat');
 
     if ~exist(filename2,'file')
         fprintf('compare_to_random: File %s could not be found\n', filename2);
@@ -93,6 +95,6 @@ function calculateNormalisedNetworkStatistics(H, N, Ap, Ad, thr, iter, no_rand)
     norm_mpl_shuff = mpl_shuff./mplrand_shuff_store';
 
     % Save to file
-    filename3 = strcat('./data/sims_norm_clust_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(Ap), '_Ad', num2str(Ad), '_thr', num2str(thr), '_s', num2str(iter),'.mat');
+    filename3 = strcat('./data/sims_norm_clust_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(Ap), '_Ad', num2str(Ad), '_thr', num2str(thr), '_tauSTDP', num2str(tau_STDP), '_tauL', num2str(tau_L), '_s', num2str(iter),'.mat');
     save(filename3, 'norm_clust', 'norm_mpl', 'norm_clust_shuff', 'norm_mpl_shuff');  
 end

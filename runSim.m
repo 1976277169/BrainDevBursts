@@ -1,15 +1,23 @@
-function runSim(H, SL, N, thr, Ap, Ad, iter, shuffled)
+function runSim(H, SL, N, thr, Ap, Ad, tau_stdp, tau_L, iter, shuffled)
 % runSim runs one simulation for a given set of parameters
 % Input parameters: 
 % - Hexp: Hurst exponent
 % - SL: Length of record
 % - N: Size of network
 % - thr: Losslikelihood threshold 
+% - Ap: Long-Term Potentiation parameter
+% - Ad: Long-Term Depression parameter
+% - tau_stdp: STDP time constant
+% - tau_L: Likelihood decay
 % - iter: Seed for random generators
 % - shuffled: Whether IBI sequence has LRTC or is to be shuffled
 % This code require functions from BCT toolbox (not included here)
 % https://sites.google.com/site/bctnet/ 
 % Version used: 2017_01_15_BCT
+
+% If actual firing data are required, lines 117 and 179 need commenting out. 
+% In addition, lines 279 and 292 need amending to add variable 'firings' to
+% the list of variables to be saved. 
 
     %=====================================================================
     % Initialisation
@@ -37,15 +45,15 @@ function runSim(H, SL, N, thr, Ap, Ad, iter, shuffled)
     params.Rm = -70; % Resting potential (V_r in paper)
     params.reset = -60; % Potential after spike
     params.fire_thres = -54; %Firing threshold (V_{thres} in paper)
-    params.tau_stdp = 5; % time constant for STDP
-    params.tau_L = 100; % decay of likelihood (\tau_L in paper)
+    params.tau_stdp = tau_stdp; % time constant for STDP
+    params.tau_L = tau_L; % decay of likelihood (\tau_L in paper)
     params.gl_mu = 0.025; % mean conductance
     params.gl_std = 0.005; % std conductance
     params.gain_thres = thr; % Likelihood threshold over which connection is gained
     params.loss_thres = -thr; % Likelihood threshold under which connection is lost
     params.Ap = Ap; % Long-Term Potentiation parameter
     params.Ad = Ad; % Long-Term Depression parameter
-    params.ccfind = 100; % Period with which to collect network information (= number of iterations)
+    params.ccfind = 100000; % Period with which to collect network information (= number of iterations)
     params.win = 200; % Number of samples over which to calculate input rate
     
     %=====================================================================
@@ -79,7 +87,7 @@ function runSim(H, SL, N, thr, Ap, Ad, iter, shuffled)
         CIJstart = CIJ; % Store initial matrix (which will be used in the shuffled case)
     else
         % Load newIEI and CIJ from file
-        filename = strcat('./data/sims_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_s', num2str(iter),'.mat');
+        filename = strcat('./data/sims_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_tauSTDP', num2str(params.tau_stdp), '_tauL', num2str(params.tau_L), '_s', num2str(iter),'.mat');
         if ~exist(filename, 'file')
             fprintf('runSim: Could not find %s. Exiting...', filename); 
             return
@@ -200,18 +208,18 @@ function runSim(H, SL, N, thr, Ap, Ad, iter, shuffled)
             if ~isempty(rlosing) % If there are candidates for removal
                 nb_removed = 0; % counter of how many links get removed
                 for cidx = 1:length(rlosing) % cycle through the list
-                    if CIJ(fired(rlosing(cidx)),closing(cidx)) == 1 % link exists (no need to check if it's self-loop since they shouldn't be created)
-                        CIJ(fired(rlosing(cidx)),closing(cidx)) = 0; % Remove link from adjacency matrix
+                    if CIJ(fired(rlosing(cidx)), closing(cidx)) == 1 % link exists (no need to check if it's self-loop since they shouldn't be created)
+                        CIJ(fired(rlosing(cidx)), closing(cidx)) = 0; % Remove link from adjacency matrix
                         nb_removed = nb_removed + 1;
                     end
                 end
                 noconn_lost = [noconn_lost, nb_removed]; % Keep track of number of links removed
             else
-                noconn_lost = [noconn_lost,0]; % No links removed
+                noconn_lost = [noconn_lost, 0]; % No links removed
             end
         else % No firings this time so no change to adjacency matrix
-            noconn_gained = [noconn_gained,0]; 
-            noconn_lost = [noconn_lost,0];
+            noconn_gained = [noconn_gained, 0]; 
+            noconn_lost = [noconn_lost, 0];
         end
 
         % Voltage update using small steps (a la Izhikevich)
@@ -255,7 +263,7 @@ function runSim(H, SL, N, thr, Ap, Ad, iter, shuffled)
     %=====================================================================
 
     if shuffled == 0
-        filename = strcat('./data/sims_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_s', num2str(iter),'.mat');
+        filename = strcat('./data/sims_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_tauSTDP', num2str(params.tau_stdp), '_tauL', num2str(params.tau_L), '_s', num2str(iter),'.mat');
 
         % Put simulation results into structure 'results'
         results.nocount = nocount;
@@ -280,7 +288,7 @@ function runSim(H, SL, N, thr, Ap, Ad, iter, shuffled)
         results_shuff.rate_input = rate_input;
         results_shuff.nocomponents = nocomponents; 
         IBIseq_shuff = IBIseq; 
-        filename = strcat('./data/sims_shuff_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_s', num2str(iter),'.mat');
+        filename = strcat('./data/sims_shuff_N', num2str(N), '_H', num2str(H*100), '_Ap', num2str(params.Ap), '_Ad', num2str(params.Ad), '_thr', num2str(params.gain_thres), '_tauSTDP', num2str(params.tau_stdp), '_tauL', num2str(params.tau_L), '_s', num2str(iter),'.mat');
         save(filename, 'IBIseq_shuff', 'results_shuff');
     end
     
