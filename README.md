@@ -1,6 +1,8 @@
 # BrainDevBursts
 Code for paper "Temporal ordering of input modulates connectivity formation in a developmental neuronal network model of the cortex" by C Hartley, SF Farmer and L Berthouze. 
 BiorXiv reference to follow. 
+https://zenodo.org/badge/DOI/10.5281/zenodo.1297410.svg
+
 
 ### List of files: 
 
@@ -31,4 +33,3 @@ BiorXiv reference to follow.
 ### Requirements: 
 
 This code requires access to functions from the [Brain Connectivity Toolbox](https://sites.google.com/site/bctnet/). Code was developed and tested with version 2017_01_15_BCT.  
-
